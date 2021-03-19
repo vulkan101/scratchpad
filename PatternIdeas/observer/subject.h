@@ -28,6 +28,7 @@ public:
     void set_float(float f) override;
 
     uint32_t addObserver(callback cb);
+    void clearObservers() { _observers.clear(); }
 protected:
     uint32_t _fn_id=0;    
     std::map<uint32_t, callback> _observers;

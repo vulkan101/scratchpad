@@ -11,6 +11,8 @@ public:
     IObserver(std::string name) : name(name) {}
     std::string name;
 
+    callback provide_callback();
+
     void doSomething(var v)
     {
         if (std::holds_alternative<int>(v))
@@ -20,6 +22,7 @@ public:
     }
     virtual void doSomething(int i)=0;
     virtual void doSomething(float f)=0;
+    
 
     int intval = 0;
     float floatval = 0;
