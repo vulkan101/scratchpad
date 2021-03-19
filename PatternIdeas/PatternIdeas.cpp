@@ -20,9 +20,15 @@ void addObservers(LambdaSubject &subject)
 {
 	for (auto &obs : Observers::created)
 	{
-		auto la = [&obs](var variable) { obs->doSomething(variable);  };
+		// note we don't take a reference of obs. copying it means the closure
+		// maintains a strong ref to the observer
+		auto la = [obs](var variable) { obs->doSomething(variable);  };
 		subject.addObserver(la);
 	}
+}
+void clearObservers()
+{
+	Observers::created.clear();
 }
 int main()
 {	
@@ -53,6 +59,12 @@ int main()
 	addObservers(LSubject);
 	LSubject.set_float(222);
 	LSubject.set_int(165.2f);
+	std::cout << "\n<<< Clearing list of shared lambda observers >>>\n";
+	// because the lambda copies the shared_ptr, clearing the 
+	// list of observers in Observers:: doesn't affect the lambdas
+	clearObservers(); 
+	LSubject.set_float(333);
+	LSubject.set_int(15.2f);
 
 	return 0;
 }
