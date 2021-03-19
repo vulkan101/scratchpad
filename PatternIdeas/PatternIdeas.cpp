@@ -5,12 +5,32 @@
 
 using namespace std;
 using var = std::variant<int, float, std::string>;
+
+namespace Observers
+{
+	std::vector<std::shared_ptr<IObserver>> created;
+
+}
+void createObservers()
+{
+	Observers::created.push_back(std::make_shared<BasicObserver>("SharedA"));
+	Observers::created.push_back(std::make_shared<FancyObserver>("SharedB"));
+}
+void addObservers(LambdaSubject &subject)
+{
+	for (auto &obs : Observers::created)
+	{
+		auto la = [&obs](var variable) { obs->doSomething(variable);  };
+		subject.addObserver(la);
+	}
+}
 int main()
 {	
 	// main needs to know about derived classes but ISubject doesn't
 	BasicObserver A("Observer A");
 	FancyObserver B("Observer B");
 	ISubject Subject;
+	std::cout << "<<< Adding basic class based observers >>>\n\n";
 	Subject.addObserver(&A);
 	Subject.addObserver(&B);
 
@@ -19,9 +39,8 @@ int main()
 
 
 	LambdaSubject LSubject;
-	var test(5.3f);
-	B.doSomething(test);
 
+	std::cout << "\n<<< Adding in scope lambda observers >>>\n";
 	auto la = [&A](var variable) { A.doSomething(variable);  };
 	auto lb = [&B](var variable) { B.doSomething(variable);  };
 	auto idA = LSubject.addObserver(la);
@@ -29,7 +48,11 @@ int main()
 
 	LSubject.set_float(111);
 	LSubject.set_int(65.2f);
-
+	std::cout << "\n<<< Adding out of scope shared lambda observers >>>\n";
+	createObservers();
+	addObservers(LSubject);
+	LSubject.set_float(222);
+	LSubject.set_int(165.2f);
 
 	return 0;
 }
